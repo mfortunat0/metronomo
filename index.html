@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metronomo</title>
+    <style>
+      :root {
+        --one: #574d4f;
+        --two: #ffffff;
+        --three: #969091;
+        --four: #ffe999;
+        --five: #ffd952;
+        --six: #bf234a;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      }
+      main {
+        min-width: 100vw;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--one);
+      }
+      section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        min-width: 340px;
+        max-width: 340px;
+        padding: 16px;
+        border-radius: 4px;
+        gap: 16px;
+        -webkit-box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.5);
+        -moz-box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.5);
+        box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.5);
+        background-color: var(--two);
+      }
+
+      section span {
+        font-size: 12px;
+        font-weight: 900;
+        color: var(--three);
+      }
+
+      section h2 {
+        font-size: 96px;
+        color: var(--one);
+      }
+
+      section form {
+        display: flex;
+        gap: 8px;
+      }
+
+      section button {
+        cursor: pointer;
+        border: none;
+        outline: none;
+        padding: 4px 24px;
+        border-radius: 4px;
+        font-size: 24px;
+        background-color: var(--five);
+        font-weight: bold;
+        color: var(--one);
+      }
+
+      section input {
+        cursor: pointer;
+        border: none;
+        outline: none;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        color: var(--one);
+        width: 120px;
+        border: 1px solid var(--three);
+        height: 34px;
+      }
+
+      section input:nth-child(2) {
+        width: 60px;
+      }
+
+      section div {
+        display: flex;
+        gap: 16px;
+      }
+
+      .buttonSubmit,
+      .buttonPlayStop {
+        font-size: 16px;
+        padding: 8px 12px;
+      }
+
+      .buttonPlayStop {
+        transition: background-color 0.3s;
+        margin-top: 24px;
+      }
+
+      ul {
+        display: flex;
+        list-style: none;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+      }
+
+      ul li {
+        cursor: pointer;
+        background-color: var(--five);
+        padding: 6px;
+        color: var(--one);
+        border-radius: 4px;
+        font-weight: 700;
+      }
+
+      .active {
+        background-color: var(--six);
+        color: var(--two);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <audio src="./click.mp3"></audio>
+      <section>
+        <span>BPM</span>
+        <h2>120</h2>
+        <div>
+          <button class="plus">+</button>
+          <button class="minus">-</button>
+        </div>
+        <hr />
+        <form>
+          <input type="text" placeholder="Nome da musica" />
+          <input type="number" placeholder="Bpm" />
+          <button class="buttonSubmit">Adicionar</button>
+        </form>
+        <ul>
+          <li>Rei do amor - 94Bpm</li>
+          <li>Rei em meu coraçao - 132Bpm</li>
+          <li>Poderoso Deus Eterno - 134Bpm</li>
+          <li>Isaias 9 - 150Bpm</li>
+          <li>Emaus - 140Bpm</li>
+          <li>Brilhante rei - 84Bpm</li>
+        </ul>
+        <button class="buttonPlayStop">TOCAR</button>
+      </section>
+    </main>
+
+    <script>
+      const h2 = document.querySelector("h2");
+      const arrLi = document.querySelectorAll("li");
+      const form = document.querySelector("form");
+      const inputName = document.querySelector("input[type=text]");
+      const inputBpm = document.querySelector("input[type=number]");
+      const ul = document.querySelector("ul");
+      const buttonPlay = document.querySelector(".buttonPlayStop");
+      const audio = document.querySelector("audio");
+      const plusButton = document.querySelector(".plus");
+      const minusButton = document.querySelector(".minus");
+      let interval;
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (inputName.value && inputBpm.value) {
+          const li = document.createElement("li");
+          li.innerHTML = `${inputName.value}-${inputBpm.value}Bpm`;
+          ul.appendChild(li);
+          inputName.value = "";
+          inputBpm.value = "";
+          inputName.focus();
+        }
+      });
+
+      arrLi.forEach((li) => {
+        li.addEventListener("click", () => {
+          const bpm = li.innerHTML.split("-")[1].trim().replace("Bpm", "");
+          h2.innerHTML = bpm;
+        });
+        li.addEventListener("dblclick", () => {
+          if (confirm(`Deseja remover ${li.innerHTML}?`)) {
+            ul.removeChild(li);
+          }
+        });
+      });
+
+      buttonPlay.addEventListener("click", () => {
+        if (buttonPlay.classList.contains("active")) {
+          buttonPlay.classList.remove("active");
+          buttonPlay.innerHTML = "TOCAR";
+          audio.pause();
+          clearInterval(interval);
+        } else {
+          buttonPlay.classList.add("active");
+          buttonPlay.innerHTML = "PARAR";
+          const bpm = Number(h2.innerHTML);
+          const bpmPerSeconds = bpm / 60;
+          interval = setInterval(() => {
+            audio.play();
+          }, 1000 / bpmPerSeconds);
+        }
+      });
+
+      plusButton.addEventListener("click", () => {
+        h2.innerHTML = Number(h2.innerHTML) + 1;
+      });
+
+      minusButton.addEventListener("click", () => {
+        h2.innerHTML = Number(h2.innerHTML) - 1;
+      });
+    </script>
+  </body>
+</html>
